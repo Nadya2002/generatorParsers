@@ -1,0 +1,39 @@
+-> expr
+
+expr : Node ->
+    term exprLine { Node("E").push(listOf(term, exprLine)) };
+
+exprLine : Node ->
+    OR term { val node = Node("E1").push(listOf(Node("|"), term)) } exprLine { node.push(exprLine) }
+    | { Node("E1").push(Node("EPS")) };
+
+term : Node ->
+    bpart termLine { Node("T").push(listOf(bpart, termLine)) };
+
+termLine : Node ->
+    XOR bpart { val node = Node("T1").push(listOf(Node("^"), bpart)) } termLine { node.push(termLine) }
+    | { Node("T1").push(Node("EPS")) };
+
+bpart : Node ->
+    kpart bpartLine { Node("B").push(listOf(kpart, bpartLine)) };
+
+bpartLine : Node ->
+    AND kpart { val node = Node("B1").push(listOf(Node("&"), kpart)) } bpartLine { node.push(bpartLine) }
+    | { Node("B1").push(Node("EPS")) };
+
+kpart : Node ->
+    fact {Node("K").push(fact)}
+    |  NOT kpart { Node("K").push(listOf(Node("!"), kpart)) } ;
+
+fact : Node ->
+    LEFT expr RIGHT { Node("F").push(listOf(Node("("), expr, Node(")"))) }
+    | VAR { Node("F").push(Node("n")) };
+
+AND -> "&" ;
+OR -> "|" ;
+XOR -> "^" ;
+NOT -> "!" ;
+LEFT -> "(" ;
+RIGHT -> ")" ;
+VAR -> '[a-zA-Z]' ;
+WS => '[ \t\r\n]';

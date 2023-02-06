@@ -1,0 +1,39 @@
+-> expr
+
+expr : Double ->
+    term exprLine(term) { exprLine };
+
+exprLine(value : Double) : Double ->
+    ADD term { val res = value + term } exprLine(res) { exprLine }
+    | MINUS term { val res = value - term } exprLine(res) { exprLine }
+    | { value };
+
+term : Double ->
+    kpart termLine(kpart) { termLine };
+
+termLine(value : Double) : Double ->
+    MUL kpart { val res = value * kpart } termLine(res) { termLine }
+    | DIV kpart { val res = value / kpart } termLine(res) { termLine }
+    | { value };
+
+kpart : Double ->
+    fact kpartLine(fact) { kpartLine };
+
+kpartLine(value : Double) : Double ->
+    POW kpart { Math.pow(value.toDouble(), kpart.toDouble()) }
+    | { value };
+
+fact : Double ->
+    MINUS fact { -fact }
+    | LEFT expr RIGHT { expr }
+    | NUMBER { NUMBER.toDouble() };
+
+POW -> "**" ;
+ADD -> "+" ;
+MINUS -> "-" ;
+MUL -> "*" ;
+DIV -> "/" ;
+LEFT -> "(" ;
+RIGHT -> ")" ;
+NUMBER -> '[0-9]+' ;
+WS => '[ \t\r\n]';
